@@ -25,11 +25,11 @@
       bordered
     >
       <q-list>
-        <!-- <q-item-label
+        <q-item-label
           header
         >
           Essential Links
-        </q-item-label> -->
+        </q-item-label>
 
         <EssentialLink
           v-for="link in linksList"
@@ -47,7 +47,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import type { EssentialLinkProps } from 'components/models';
+import EssentialLink  from 'components/EssentialLink.vue';
 
 const linksList: EssentialLinkProps[] = [
   {
