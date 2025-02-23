@@ -1,6 +1,6 @@
 <template>
-  <div class="pdf-container">
-    <canvas ref="pdfCanvas"></canvas>
+  <div class="pdf-container" ref="containerRef">
+    <!-- Canvas elements will be dynamically inserted here -->
   </div>
 </template>
 
@@ -8,51 +8,56 @@
 import { ref, onMounted, watch } from 'vue'
 import * as pdfjs from 'pdfjs-dist'
 import { readFile } from '@tauri-apps/plugin-fs'
-// 定义 props
+
 interface Props {
   fileUrl: string
 }
 const props = defineProps<Props>()
 
-// 设置 PDF.js worker 路径
 pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`
 
-const pdfCanvas = ref<HTMLCanvasElement | null>(null)
+const containerRef = ref<HTMLElement | null>(null)
 
 const renderPdf = async (url: string) => {
   try {
-    if (!pdfCanvas.value) return
-    // 使用 Tauri fs plugin 读取文件
-    const fileContent = await readFile(url)
+    if (!containerRef.value) return
 
-    // 从 Tauri 本地文件路径加载 PDF
+    // Clear previous content
+    containerRef.value.innerHTML = ''
+
+    const fileContent = await readFile(url)
     const loadingTask = pdfjs.getDocument({ data: fileContent })
     const pdf = await loadingTask.promise
 
-    // 获取第一页
-    const page = await pdf.getPage(1)
+    // Render all pages
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      const page = await pdf.getPage(pageNumber)
+      const viewport = page.getViewport({ scale: 1.5 })
 
-    // 设置缩放和画布
-    const viewport = page.getViewport({ scale: 1.5 })
-    const canvas = pdfCanvas.value
-    const context = canvas.getContext('2d')
+      // Create canvas element for each page
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')
+      if (!context) continue
 
-    if (!context) return
+      // Set canvas dimensions
+      canvas.height = viewport.height
+      canvas.width = viewport.width
+      canvas.style.marginBottom = '20px' // Add spacing between pages
 
-    canvas.height = viewport.height
-    canvas.width = viewport.width
+      // Add canvas to container
+      containerRef.value.appendChild(canvas)
 
-    // 渲染 PDF 页面
-    await page.render({
-      canvasContext: context,
-      viewport: viewport,
-    }).promise
+      // Render PDF page
+      await page.render({
+        canvasContext: context,
+        viewport: viewport,
+      }).promise
+    }
   } catch (error) {
     console.error('Error rendering PDF:', error)
   }
 }
 
-// 监听 fileUrl 变化
 watch(
   () => props.fileUrl,
   (newUrl) => {
@@ -71,16 +76,20 @@ onMounted(() => {
 
 <style scoped>
 .pdf-container {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  display: flex;
-  justify-content: center;
+  width: 95%;
+  height: 90vh;
+  overflow-y: auto;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid red;
 }
 
 canvas {
   max-width: 100%;
   height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
 }
 </style>
