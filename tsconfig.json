@@ -1,7 +1,3 @@
 {
-  "extends": "./.quasar/tsconfig.json",
-  "include": [
-    // ...existing code...
-    "types/**/*.d.ts"
-  ]
+  "extends": "./.quasar/tsconfig.json"
 }
