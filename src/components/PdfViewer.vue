@@ -9,6 +9,9 @@ import { ref, onMounted, watch } from 'vue'
 import * as pdfjs from 'pdfjs-dist'
 import { readFile } from '@tauri-apps/plugin-fs'
 
+const PDFJS = import('pdfjs-dist/build/pdf.worker.mjs')
+console.log('PDFJS : ', PDFJS)
+
 interface Props {
   fileUrl: string
 }
