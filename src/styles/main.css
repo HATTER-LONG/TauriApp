@@ -1,0 +1,22 @@
+:root {
+  --titlebar-height: 32px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* 用于防止Tauri窗口拖动的元素 */
+[data-tauri-drag-region] {
+  cursor: move;
+}
+
+/* 禁用拖动效果的元素 */
+button, input, .no-drag {
+  cursor: default;
+  -webkit-app-region: no-drag;
+}

@@ -1,6 +1,41 @@
+<template>
+  <div class="app">
+    <TitleBar />
+    <div class="content">
+      <main class="container">
+        <h1>Welcome to Tauri + Vue</h1>
+
+        <div class="row">
+          <a href="https://vitejs.dev" target="_blank">
+            <img src="/vite.svg" class="logo vite" alt="Vite logo" />
+          </a>
+          <a href="https://tauri.app" target="_blank">
+            <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
+          </a>
+          <a href="https://vuejs.org/" target="_blank">
+            <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
+          </a>
+        </div>
+        <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
+
+        <form class="row" @submit.prevent="greet">
+          <input
+            id="greet-input"
+            v-model="name"
+            placeholder="Enter a name..."
+          />
+          <button type="submit">Greet</button>
+        </form>
+        <p>{{ greetMsg }}</p>
+      </main>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import TitleBar from "./components/TitleBar.vue";
 
 const greetMsg = ref("");
 const name = ref("");
@@ -11,31 +46,6 @@ async function greet() {
 }
 </script>
 
-<template>
-  <main class="container">
-    <h1>Welcome to Tauri + Vue</h1>
-
-    <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
-    </div>
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
-
-    <form class="row" @submit.prevent="greet">
-      <input id="greet-input" v-model="name" placeholder="Enter a name..." />
-      <button type="submit">Greet</button>
-    </form>
-    <p>{{ greetMsg }}</p>
-  </main>
-</template>
-
 <style scoped>
 .logo.vite:hover {
   filter: drop-shadow(0 0 2em #747bff);
@@ -44,7 +54,6 @@ async function greet() {
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #249b73);
 }
-
 </style>
 <style>
 :root {
@@ -157,4 +166,26 @@ button {
   }
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #2c2c2c;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  margin-top: 32px;
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+}
 </style>
