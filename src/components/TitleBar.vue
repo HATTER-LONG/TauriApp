@@ -1,121 +1,91 @@
 <template>
-  <div class="titlebar" data-tauri-drag-region>
-    <div class="titlebar-logo">
-      <img src="../assets/app-icon.png" alt="Logo" width="16" height="16" />
-      <span>我的应用</span>
-    </div>
-    <div class="titlebar-controls">
-      <button @click="minimize" class="titlebar-button">
-        <svg width="12" height="12" viewBox="0 0 12 12">
-          <path d="M2 6h8v1H2z" />
-        </svg>
-      </button>
-      <button @click="toggleMaximize" class="titlebar-button">
-        <svg v-if="!isMaximized" width="12" height="12" viewBox="0 0 12 12">
-          <path
-            d="M2 2v8h8V2H2zm1 1h6v6H3V3z"
-          />
-        </svg>
-        <svg v-else width="12" height="12" viewBox="0 0 12 12">
-          <path
-            d="M2 2v2h2V2H2zm6 0v2h2V2H8zM2 8v2h2V8H2zm6 0v2h2V8H8z"
-          />
-        </svg>
-      </button>
-      <button @click="close" class="titlebar-button close">
-        <svg width="12" height="12" viewBox="0 0 12 12">
-          <path
-            d="M2.4 1L1 2.4l3.6 3.6L1 9.6 2.4 11l3.6-3.6 3.6 3.6 1.4-1.4-3.6-3.6L11 2.4 9.6 1 6 4.6 2.4 1z"
-          />
-        </svg>
-      </button>
+  <div class="title-bar" data-tauri-drag-region>
+    <div class="title" data-tauri-drag-region>{{ appName }}</div>
+    <div class="window-controls">
+      <n-button quaternary circle size="small" @click="minimizeWindow">
+        <template #icon>
+          <n-icon><MinusOutlined /></n-icon>
+        </template>
+      </n-button>
+      <n-button quaternary circle size="small" @click="toggleMaximize">
+        <template #icon>
+          <n-icon><FullscreenExitOutlined v-if="isFullscreen"/>
+            <FullscreenOutlined v-else /></n-icon>
+        </template>
+      </n-button>
+      <n-button
+        quaternary
+        circle
+        size="small"
+        class="close-button"
+        @click="closeWindow"
+      >
+        <template #icon>
+          <n-icon><CloseOutlined  /></n-icon>
+        </template>
+      </n-button>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { NButton, NIcon } from "naive-ui";
+import { CloseOutlined, FullscreenOutlined, FullscreenExitOutlined, MinusOutlined } from "@vicons/antd";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
+const appName = ref("Tauri App");
 const appWindow = getCurrentWindow();
+const isFullscreen = ref(false);
 
-const isMaximized = ref(false);
+const updateFullscreenState = async () => {
+  isFullscreen.value = await appWindow.isFullscreen();
+  console.log(isFullscreen.value);
+};
 
-onMounted(async () => {
-  isMaximized.value = await appWindow.isMaximized();
-  
-  // 监听窗口状态变化
-//   appWindow.onResized(() => {
-//     appWindow.isMaximized().then(maximized => {
-//       isMaximized.value = maximized;
-//     });
-//   });
+onMounted(() => {
+  updateFullscreenState();
 });
 
-const minimize = () => {
+const minimizeWindow = () => {
   appWindow.minimize();
 };
 
 const toggleMaximize = async () => {
-  await appWindow.toggleMaximize();
-  isMaximized.value = await appWindow.isMaximized();
+  await appWindow.setFullscreen(!isFullscreen.value);
+  updateFullscreenState();
 };
 
-const close = () => {
+const closeWindow = () => {
   appWindow.close();
 };
 </script>
 
 <style scoped>
-.titlebar {
+.title-bar {
   height: 32px;
-  background-color: #1f1f1f;
+  background-color: #f0f0f0;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
+  padding: 0 10px;
   user-select: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  -webkit-user-select: none;
 }
 
-.titlebar-logo {
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  gap: 8px;
+.title {
   font-size: 14px;
-  color: #fff;
+  font-weight: 500;
+  color: #333;
 }
 
-.titlebar-controls {
+.window-controls {
   display: flex;
+  gap: 4px;
 }
 
-.titlebar-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 46px;
-  height: 32px;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  fill: #fff;
-}
-
-.titlebar-button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.close:hover {
-  background-color: #e81123;
-}
-
-[data-tauri-drag-region] {
-  cursor: move;
+.close-button:hover {
+  background-color: #ff4d4f;
+  color: white;
 }
 </style>
